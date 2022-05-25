@@ -35,13 +35,13 @@ jobs:
 #
     - name: docker build
 #      run: docker build -t demo_hello_world_deploy:'${{github.sha}}' .
-      run:     docker build ./app/ --file ./app/Dockerfile --tag demo:'${{github.sha}}'     
+      run:     docker build ./app/ --file ./app/Dockerfile --tag demoimage #:'${{github.sha}}'     
 
     - name: docker login
       run: docker login --username '${{secrets.DOCKERHUB_USERNAME}}' --password '${{secrets.DOCKERHUB_PASSWORD}}'
       
     - name: tag docker image
-      run: docker tag demo:'${{github.sha}}' '${{secrets.DOCKERHUB_USERNAME}}'/demo:'${{github.sha}}'
+      run: docker tag demoimage '${{secrets.DOCKERHUB_USERNAME}}'/demo:'${{github.sha}}'
     
     - name: push docker image
       run: docker push '${{secrets.DOCKERHUB_USERNAME}}'/demo:'${{github.sha}}'
