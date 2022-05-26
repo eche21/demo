@@ -20,7 +20,7 @@ jobs:
       #Environment variables for Docker image
       DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
       IMAGE_NAME: demoappv3 # name of image
-      #IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
+      IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
       #
       #variables for AKS cluster and namespace
       CLUSTER_NAME: RegScale
@@ -34,10 +34,10 @@ jobs:
     - name: Git Checkout
       uses: actions/checkout@v2
 #  
-    - name: Short Sha
-      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-      env:  
-        IMAGE_TAG: ${SHORT_SHA}   
+    - name: shortsha
+      run:
+       echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
+        
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
@@ -85,7 +85,7 @@ jobs:
       env:
         DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
         IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        IMAGE_TAG: ${SHORT_SHA}  #${{ env.IMAGE_TAG }}
+        IMAGE_TAG: ${{ env.IMAGE_TAG }}
 #
 # Connect the target Azure Kubernetes Service (AKS) cluster, using AZURE CREDENTIALS.
 # This credentials are the service principles that I already created on my cli using
