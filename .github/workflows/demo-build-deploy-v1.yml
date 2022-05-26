@@ -1,3 +1,10 @@
+###########################################################################################
+# THIS DEMO SUCCESSFULLY BUILDS AND DEPLOYS THE DOCKER CONTAINER TO AKS
+#THE APP IS TAKEN FROM docs.docker.com/get-started/02_our_app
+#THE ZIP FOLDER IS IN MY DOWNLOADS C:\Users\ericn\Downloads\getting-started-master.zip
+#########################################################################################
+#
+#This workflow is triggered on a push to github branch che
 name: demo_build_and_deploy_aks_v1
 
 on:
@@ -10,10 +17,12 @@ jobs:
   build-deploy-kub:
     runs-on: ubuntu-latest
     env:
+      #Environment variables for Docker image
       DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
-      IMAGE_NAME: demoappv1
-      IMAGE_TAG: ${{ github.run_number }} # $GITHUB_RUN_NUMBER
-      
+      IMAGE_NAME: demoappv1 # name of image
+      IMAGE_TAG: ${{ github.run_number }} # $GITHUB_RUN_NUMBER that will be incremented each time a new build is triggered
+      #
+      #variables for AKS cluster and namespace
       CLUSTER_NAME: RegScale
       CLUSTER_RESOURCE_GROUP: Corporate
       NAMESPACE: demo-eche
@@ -26,8 +35,7 @@ jobs:
       uses: actions/checkout@v2
 #      
 #This step builds the docker image using docker build. The image is tagged.
-# We can also use a step predefined
-#in github market place.
+# We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside
 # the runner. This gives more flexibility and more control.
 #
@@ -52,7 +60,8 @@ jobs:
 #Login to Docker Hub, and push the image. We need username and password. These are
 #provided as secrets and the secrets have been created and stored in Github
 #DOCKER_REPOSITORY is the username
-#DOCKERHUB_TOKEN is the secret for the password. The password will be passed to the variable stdin
+#DOCKERHUB_PASSWORD is the password. The password will be passed to the parameter stdin
+#DOCKERHUB_TOKEN is the secret for the password. 
 #
     - name: Login to Docker Hub
       run: |
@@ -74,7 +83,9 @@ jobs:
         IMAGE_NAME: ${{ env.IMAGE_NAME }}
         IMAGE_TAG: ${{ env.IMAGE_TAG }}
 #
-# Connect the target Azure Kubernetes Service (AKS) cluster. 
+# Connect the target Azure Kubernetes Service (AKS) cluster, using AZURE CREDENTIALS.
+# This credentials are the service principles that I already created on my cli using
+# the command az ad sp create-for-rbac --name <> --role <> --scope <> --sdk-auth 
     - name: Set the AKS cluster
       uses: azure/aks-set-context@v1
       with:

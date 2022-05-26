@@ -1,3 +1,5 @@
+
+#THIS MANIFEST FILE IS USED BY DEMO-BUILD-DEPLOY-V1.YML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,7 +19,10 @@ spec:
       - name: demoapp-v1
         #image: $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA 
         #image: '${{secrets.DOCKERHUB_USERNAME}}/demo_hello_world_deploy:${{github.sha}}'
+        #
+        #Naming convention that uses environment variables, so values can be updated
         image: __DOCKER_REPOSITORY__/__IMAGE_NAME__:__IMAGE_TAG__
+        #
         #$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER
         ports:
         - containerPort: 80
