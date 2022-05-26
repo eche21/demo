@@ -81,3 +81,19 @@ jobs:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
         cluster-name: ${{ env.CLUSTER_NAME }}
         resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}        
+ #
+   # Create K8s secrets to pull images
+    - name: Create secret in Kubernetes cluster
+      uses: Azure/k8s-create-secret@v1.1
+      with:
+        # Container registry url
+        container-registry-url: https://login.docker.com/u/login/identifier?state=hKFo2SBEQmtlUEg4MkJidXUtdWhKb2lwMFo4a2xFRUp4R2h0T6Fur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHlYMVJYc3psbmlwM0pDd1M5UkJ5MEJWYzB1cExXLUtso2NpZNkgbHZlOUdHbDhKdFNVcm5lUTFFVnVDMGxiakhkaTluYjk
+        # Container registry username
+        container-registry-username: eche21
+        # Container registry password
+        container-registry-password:  '${{ secrets.DOCKERHUB_PASSWORD }}'
+        # Type of Kubernetes secret. For example, docker-registry or generic
+        secret-type: docker-registry
+        # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+        secret-name: docker-image-pull-secret
+        
