@@ -1,49 +1,65 @@
 name: demo_build_and_deploy_aks_v1
 
 on:
-  push:
+  pull_request:
     branches:
       - che      
-variables:
-  tag: test
 
-stages:
-- stage: Build
-  jobs: 
-  - job: Build_Push_Image
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
+jobs:
 
-      - script: echo "##vso[task.setvariable variable=commit-tag;isOutput=true]$(echo $BUILD_SOURCEVERSION | cut -c 1-7)"
-        name: setCommitTag
-        displayName: 'Set Commit Tag'
-
-      - script: echo Commit tag is $(setCommitTag.commit-tag)
-        displayName: 'Display Commit Tag'
-
-      - task: Docker@2
-        displayName: 'Build Image and Push to ACR'
-        inputs:
-          containerRegistry: 'eche21'
-          repository: 'demo'
-          command: 'buildAndPush'
-          Dockerfile: './app/Dockerfile'
-          tags: |
-            $(setCommitTag.commit-tag)
-  - job: Update_Vars
-    displayName: Update_Vars
-    pool:
-      name: 'demo Build Push'
-    dependsOn: ['Build_Push_Image']
-    variables:
-      commit-tag: $[ dependencies.Build_Push_Image.outputs['setCommitTag.commit-tag'] ]
-    steps:
-    - script: echo Commit Tag is $(commit-tag)
-      displayName: 'Show Commit Tag'
+  build-deploy-kub:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
+      IMAGE_NAME: demoappv1
+      IMAGE_TAG: ${{ github.run_number }} # $GITHUB_RUN_NUMBER
+      
+      CLUSTER_NAME: RegScale
+      CLUSTER_RESOURCE_GROUP: Corporate
+      NAMESPACE: demo-che
     
-    - task: variableupdater@1
-      inputs:
-        VariableGroupId: '3'
-        VariableName: 'DEMO_SHA'
-        NewValue: '$(commit-tag)'
+    steps:
+#    
+#This step checks out the application source code
+#
+    - name: Git Checkout
+      uses: actions/checkout@v2
+#      
+#This step builds the docker image using docker build. The image is tagged.
+# We can also use a step predefined
+#in github market place.
+# But we use the command line. The docker cli and the docker daemon are already installed inside
+# the runner. This gives more flexibility and more control.
+#
+    - name: Build Docker Image
+      run:
+        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER --build-arg=token=secrets.MYTOKEN --no-cache
+#
+#SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
+# for any severity
+#
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      continue-on-error: true
+      with:
+        image-ref: 'docker.io/${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'MEDIUM,HIGH,CRITICAL'
+#
+#Login to Docker Hub, and push the image. We need username and password. These are
+#provided as secrets and the secrets have been created and stored in Github
+#DOCKER_REPOSITORY is the username
+#DOCKERHUB_TOKEN is the secret for the password. The password will be passed to the variable stdin
+#
+    - name: Login to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u $DOCKER_REPOSITORY --password-stdin
+#
+#Push the image using docker push
+#
+    - name: Push Image to Docker Hub
+      run:
+        docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER
