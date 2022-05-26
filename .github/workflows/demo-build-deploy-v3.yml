@@ -85,7 +85,7 @@ jobs:
       env:
         DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
         IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        IMAGE_TAG: ${SHORT_SHA}  #${{ env.IMAGE_TAG }}
 #
 # Connect the target Azure Kubernetes Service (AKS) cluster, using AZURE CREDENTIALS.
 # This credentials are the service principles that I already created on my cli using
