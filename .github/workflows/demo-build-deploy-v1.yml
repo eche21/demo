@@ -36,8 +36,8 @@ jobs:
 #      
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
-# But we use the command line. The docker cli and the docker daemon are already installed inside
-# the runner. This gives more flexibility and more control.
+# But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
+#This gives more flexibility and more control.
 #
     - name: Build Docker Image
       run:
