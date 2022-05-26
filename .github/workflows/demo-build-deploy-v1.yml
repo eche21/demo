@@ -103,7 +103,7 @@ jobs:
       with:        
         # Path to the manifest files which will be used for deployment.
         manifests: |
-          k8s/demo-deployment.yml
+          k8s/demo-deployment-v1.yml
         #  k8s/service.yml
         # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
         #images: '$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA'
