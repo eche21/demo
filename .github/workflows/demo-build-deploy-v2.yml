@@ -8,7 +8,7 @@
 name: demo_build_and_deploy_aks_v1
 
 on:
-  pull_request:
+  push:
     branches:
       - che      
 
@@ -20,7 +20,7 @@ jobs:
       #Environment variables for Docker image
       DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
       IMAGE_NAME: demoappv1 # name of image
-      IMAGE_TAG: ${{ github.run_number }} # $GITHUB_RUN_NUMBER that will be incremented each time a new build is triggered
+      IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
       #
       #variables for AKS cluster and namespace
       CLUSTER_NAME: RegScale
@@ -41,7 +41,7 @@ jobs:
 #
     - name: Build Docker Image
       run:
-        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER --build-arg=token=secrets.MYTOKEN --no-cache
+        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA --build-arg=token=secrets.MYTOKEN --no-cache
 #
 #SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
 # for any severity
@@ -71,7 +71,7 @@ jobs:
 #
     - name: Push Image to Docker Hub
       run:
-        docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+        docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA
 
     - uses: cschleiden/replace-tokens@v1
       with:
@@ -114,7 +114,7 @@ jobs:
       with:        
         # Path to the manifest files which will be used for deployment.
         manifests: |
-          k8s/demo-deployment-v1.yml
+          k8s/demo-deployment-v2.yml
         #  k8s/service.yml
         # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
         #images: '$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA'
