@@ -16,7 +16,7 @@ jobs:
       
       CLUSTER_NAME: RegScale
       CLUSTER_RESOURCE_GROUP: Corporate
-      NAMESPACE: demo-che
+      NAMESPACE: demo-eche
     
     steps:
 #    
