@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app-deployment
+  namespace: demo-eche
+spec:
+  selector:
+    matchLabels:
+      app: demoapp
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: demoapp
+    spec:
+      containers:
+      - name: demoapp
+        #image: $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA 
+        #image: '${{secrets.DOCKERHUB_USERNAME}}/demo_hello_world_deploy:${{github.sha}}'
+        image: eche21/demoappv1:2
+        #$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+        ports:
+        - containerPort: 80
