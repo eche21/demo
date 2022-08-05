@@ -39,9 +39,9 @@ jobs:
       run: |
         echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u $DOCKER_REPOSITORY --password-stdin
 
-    # - name: Push Image to Docker Hub
-    #   run:
-    #     docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA
+    - name: Push Image to Docker Hub
+      run:
+        docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
