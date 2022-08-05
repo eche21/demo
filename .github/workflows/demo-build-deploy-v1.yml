@@ -1,0 +1,127 @@
+###########################################################################################
+# THIS DEMO SUCCESSFULLY BUILDS AND DEPLOYS THE DOCKER CONTAINER TO AKS
+#THE APP IS TAKEN FROM docs.docker.com/get-started/02_our_app
+#THE ZIP FOLDER IS IN MY DOWNLOADS C:\Users\ericn\Downloads\getting-started-master.zip
+#########################################################################################
+#
+#This workflow is triggered on a push to github branch che
+name: demo_build_and_deploy_aks_v1
+
+on:
+  pull_request:
+    branches:
+      - che      
+
+jobs:
+
+  build-deploy-kub:
+    runs-on: ubuntu-latest
+    env:
+      #Environment variables for Docker image
+      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
+      IMAGE_NAME: demoappv1 # name of image
+      IMAGE_TAG: ${{ github.run_number }} # $GITHUB_RUN_NUMBER that will be incremented each time a new build is triggered
+      #
+      #variables for AKS cluster and namespace
+      CLUSTER_NAME: RegScale
+      CLUSTER_RESOURCE_GROUP: Corporate
+      NAMESPACE: demo-eche
+    
+    steps:
+#    
+#This step checks out the application source code
+#
+    - name: Git Checkout
+      uses: actions/checkout@v2
+#      
+#This step builds the docker image using docker build. The image is tagged.
+# We can also use a step predefined in github market place.
+# But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
+#This gives more flexibility and more control.
+#
+    - name: Build Docker Image
+      run:
+        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER --build-arg=token=secrets.MYTOKEN --no-cache
+#
+#SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
+# for any severity
+#
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      continue-on-error: true
+      with:
+        image-ref: 'docker.io/${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'MEDIUM,HIGH,CRITICAL'
+#
+#Login to Docker Hub, and push the image. We need username and password. These are
+#provided as secrets and the secrets have been created and stored in Github
+#DOCKER_REPOSITORY is the username
+#DOCKERHUB_PASSWORD is the password. The password will be passed to the parameter stdin
+#DOCKERHUB_TOKEN is the secret for the password. 
+#
+    - name: Login to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u $DOCKER_REPOSITORY --password-stdin
+#
+#Push the image using docker push
+#
+    - name: Push Image to Docker Hub
+      run:
+        docker push $DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER
+
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["k8s/*.yml"]'
+        tokenPrefix: __ # optional, default is #{
+        tokenSuffix: __ # optional, default is }#
+      env:
+        DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+#
+# Connect the target Azure Kubernetes Service (AKS) cluster, using AZURE CREDENTIALS.
+# This credentials are the service principles that I already created on my cli using
+# the command az ad sp create-for-rbac --name <> --role <> --scope <> --sdk-auth 
+    - name: Set the AKS cluster
+      uses: azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ env.CLUSTER_NAME }}
+        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}        
+ #
+   # Create K8s secrets to pull images
+    - name: Create secret in Kubernetes cluster
+      uses: Azure/k8s-create-secret@v1.1
+      with:
+        # Container registry url
+        container-registry-url: https://login.docker.com/u/login/identifier?state=hKFo2SBEQmtlUEg4MkJidXUtdWhKb2lwMFo4a2xFRUp4R2h0T6Fur3VuaXZlcnNhbC1sb2dpbqN0aWTZIHlYMVJYc3psbmlwM0pDd1M5UkJ5MEJWYzB1cExXLUtso2NpZNkgbHZlOUdHbDhKdFNVcm5lUTFFVnVDMGxiakhkaTluYjk
+        # Container registry username
+        container-registry-username: eche21
+        # Container registry password
+        container-registry-password:  '${{ secrets.DOCKERHUB_PASSWORD }}'
+        # Type of Kubernetes secret. For example, docker-registry or generic
+        secret-type: docker-registry
+        # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+        secret-name: docker-image-pull-secret
+        
+      # Deploy to k8s cluster
+    - name: Deploy to Kubernetes cluster
+      uses: Azure/k8s-deploy@v1
+      with:        
+        # Path to the manifest files which will be used for deployment.
+        manifests: |
+          k8s/demo-deployment-v1.yml
+        #  k8s/service.yml
+        # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+        #images: '$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA'
+        #'$DOCKER_REPOSITORY/$IMAGE_NAME:$GITHUB_RUN_NUMBER'
+        # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+        imagepullsecrets: docker-image-pull-secret
+        #
+        namespace: ${{ env.NAMESPACE }}
+        # deploy/promote/reject
+        action: deploy       
