@@ -18,7 +18,7 @@ on:
 
 jobs:
 
-  build-deploy-container-to-ECR:
+  build-deploy-container-image-to-ECR:
     runs-on: ubuntu-latest
     env:
       #Environment variables for Docker image
