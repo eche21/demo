@@ -9,7 +9,7 @@ name: demo_build_and_deploy_ECR
 
 on:
   push:
-    branches: [ cheECR]
+    branches: [ none ]
     paths-ignore:
       - demo-build-deploy-v1.yml
       - demo-build-deploy-v2.yml
