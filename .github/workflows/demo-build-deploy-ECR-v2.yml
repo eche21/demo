@@ -36,3 +36,6 @@ jobs:
     - name: Build Docker Image
       run:
           docker build ./app/ --file ./app/Dockerfile --tag  $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} --build-arg=token=secrets.MYTOKEN --no-cache
+    - name: Login to Docker Hub
+      run: |
+         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
