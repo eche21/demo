@@ -37,4 +37,5 @@ jobs:
         region: us-east-1
         tags: ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
         create_repo: true
-        dockerfile: $GITHUB_WORKSPACE/app/Dockerfile    
+        path: $GITHUB_WORKSPACE/app
+        dockerfile: Dockerfile    
