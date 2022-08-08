@@ -59,11 +59,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
     - name: working Directory
       run: pwd  
-    # - name: Build, tag, and push image to Amazon ECR
-    #   env:
-    #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #     ECR_REPOSITORY: demorepo
-    #     IMAGE_TAG: ${{ github.sha }}
-    #   run: |
-    #        docker build ./app/ --file ./app/Dockerfile --tag $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA --build-arg=token=secrets.MYTOKEN --no-cache 
-    #        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: demorepo
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+           docker build GITHUB_WORKSPACE/app/ --file GITHUB_WORKSPACE/app/Dockerfile --tag $ECR_REGISTRY/$ECR_REPOSITORY/$IMAGE_NAME:$GITHUB_SHA --build-arg=token=secrets.MYTOKEN --no-cache 
+           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
