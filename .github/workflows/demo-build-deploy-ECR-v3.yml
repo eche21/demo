@@ -37,5 +37,5 @@ jobs:
         region: us-east-1
         tags: ${{ github.sha }}
         create_repo: true
-        path: $GITHUB_WORKSPACE/app/Dockerfile
+        path: /home/runner/work/demo/demo/app
         dockerfile: Dockerfile    
