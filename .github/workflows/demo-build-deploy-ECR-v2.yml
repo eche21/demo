@@ -9,7 +9,7 @@ name: demo_build_and_deploy_ECR_v2
 
 on:
   push:
-    branches: [ cheECR ]
+    branches: [ none ]
     paths-ignore:
       - demo-build-deploy-v1.yml
       - demo-build-deploy-v2.yml
@@ -45,7 +45,6 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
-
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
