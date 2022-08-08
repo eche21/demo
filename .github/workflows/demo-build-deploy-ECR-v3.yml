@@ -35,7 +35,7 @@ jobs:
         account_id: ${{ secrets.AWS_ACCOUNT_ID }}
         repo: che/repo
         region: us-east-1
-        tags: ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+        tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
         create_repo: true
         path: $GITHUB_WORKSPACE/app
         dockerfile: Dockerfile    
