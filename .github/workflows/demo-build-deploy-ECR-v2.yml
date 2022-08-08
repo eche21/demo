@@ -12,7 +12,6 @@ on:
     branches: [ none ]
     paths-ignore:
       - demo-build-deploy-v1.yml
-      - demo-build-deploy-v2.yml
       - demo-build-deploy-v3.yml
       - demo-build-deploy.yml 
 
