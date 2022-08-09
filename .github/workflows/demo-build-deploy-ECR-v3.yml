@@ -1,0 +1,41 @@
+###########################################################################################
+# THIS DEMO SUCCESSFULLY BUILDS AND DEPLOYS THE DOCKER CONTAINER TO AKS
+#THE APP IS TAKEN FROM docs.docker.com/get-started/02_our_app
+#THE ZIP FOLDER IS IN MY DOWNLOADS C:\Users\ericn\Downloads\getting-started-master.zip
+#########################################################################################
+#
+#This workflow is triggered on a push to github branch che
+name: demo_build_and_deploy_ECR
+
+on:
+  push:
+    branches: [ none]
+    paths-ignore:
+      - demo-build-deploy-v1.yml
+      - demo-build-deploy-v2.yml
+      - demo-build-deploy-v3.yml
+      - demo-build-deploy.yml 
+
+
+jobs:
+
+  build-deploy-to-ECR:
+    runs-on: ubuntu-latest
+    env:
+      #Environment variables for Docker image
+      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
+      IMAGE_NAME: demoappv4 # name of image
+      IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
+
+    steps:
+    - uses: theikkila/aws-ecr-action@v1
+      with:
+        access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+        repo: che/repo
+        region: us-east-1
+        tags: ${{ github.sha }}
+        create_repo: true
+        path: /home/runner/work/demo/demo/app
+        dockerfile: Dockerfile    
