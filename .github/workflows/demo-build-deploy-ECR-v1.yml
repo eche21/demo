@@ -84,9 +84,9 @@ jobs:
     - name: Build, tag, and push image to Azure ACR
       env:
         ACR_server: regscalecontainerregistry.azurecr.io
-        ACR_REGISTRY: regscalecontainerregistry
+#        ACR_REGISTRY: regscalecontainerregistry
         ACR_REPOSITORY: demorepo
-        IMAGE_TAG: ${{ github.sha }}
+#        IMAGE_TAG: ${{ github.sha }}
         IMAGE_NAME: demoappv4
       run: |
              docker tag $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} ${{ env.ACR_server }}/${{ env.ACR_REPOSITORY }}:${{ github.ref_name }}
