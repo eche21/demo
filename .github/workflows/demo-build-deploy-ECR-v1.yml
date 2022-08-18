@@ -5,16 +5,19 @@
 #########################################################################################
 #
 #This workflow is triggered on a push to github branch che
-name: demo_build_and_deploy_ECR
+name: demo_build_and_deploy_ECR_ACR
 
 on:
-  release:
-    types: [published]
-    paths-ignore:
-      - demo-build-deploy-v1.yml
-      - demo-build-deploy-v2.yml
-      - demo-build-deploy-v3.yml
-      - demo-build-deploy.yml 
+  # release:
+  #   types: [published]
+  push:
+    branches: [ cheECR ]
+
+      # paths-ignore:
+      # - demo-build-deploy-v1.yml
+      # - demo-build-deploy-v2.yml
+      # - demo-build-deploy-v3.yml
+      # - demo-build-deploy.yml 
 
 jobs:
 
