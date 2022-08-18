@@ -89,6 +89,6 @@ jobs:
       run: |
 
             docker tag $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} $ACR_REGISTRY/$ACR_REPOSITORY:${{ env.IMAGE_NAME }}
-            # docker push $ACR_REGISTRY/$ACR_REPOSITORY:${{ env.IMAGE_NAME }}  
+            docker push $ACR_REGISTRY/$ACR_REPOSITORY:${{ env.IMAGE_NAME }}  
 
             # docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}             
