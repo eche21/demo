@@ -75,6 +75,7 @@ jobs:
 #             docker tag $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_NAME }}
 #             docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_NAME }}
     - name: login to Azure ACR
+      id: login-acr
       uses: azure/docker-login@v1
       with:
          login-server: 'regscalecontainerregistry.azurecr.io' # default: index.docker.io
@@ -89,7 +90,7 @@ jobs:
         IMAGE_NAME: demoappv4
       run: |
 
-            docker tag $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} $ACR_SERVER/$ACR_REPOSITORY:${{ env.IMAGE_NAME }}
-            docker push $ACR_SERVER/$ACR_REPOSITORY:${{ env.IMAGE_NAME }}  
+            docker tag $DOCKER_REPOSITORY/${{ env.IMAGE_NAME }}:${{ github.ref_name }} regscalecontainerregistry.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            docker push regscalecontainerregistry.azurecr.io/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}  
 
             # docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}             
