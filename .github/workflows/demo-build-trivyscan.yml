@@ -31,13 +31,20 @@ jobs:
 #    
 #This step checks out the application source code
 #
-    - name: Git Checkout
-      uses: actions/checkout@latest
+    - name: get latest release with tag
+      id: latestrelease
+      run: |
+         echo "::set-output name=releasetag::$(curl -s https://api.github.com/repos/weide-zhou/ticket13/releases/latest | jq '.tag_name' | sed 's/\"//g')" --header 'authorization: Bearer ${{ secrets.MYTOKEN }}'
+    - name: confirm release tag
+      run: |
+          echo ${{ steps.latestrelease.outputs.releasetag }}
+    - name: tagcheckout
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ steps.latestrelease.outputs.releasetag }}
 #  
     - name: shortsha
-      run:
-       echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
-        
+      run:        echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
