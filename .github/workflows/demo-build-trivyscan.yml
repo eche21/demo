@@ -29,19 +29,8 @@ jobs:
     
     steps:
 #    
-#This step checks out the application source code
-#
-    - name: get latest release with tag
-      id: latestrelease
-      run: |
-         echo "::set-output name=releasetag::$(curl -s https://api.github.com/repos/weide-zhou/ticket13/releases/latest | jq '.tag_name' | sed 's/\"//g')" 
-    - name: confirm release tag
-      run: |
-          echo ${{ steps.latestrelease.outputs.releasetag }}
-    - name: tagcheckout
+    - name: Git checkout
       uses: actions/checkout@v2
-      with:
-        ref: ${{ steps.latestrelease.outputs.releasetag }}
 #  
     - name: shortsha
       run:        echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
