@@ -66,7 +66,7 @@ jobs:
         export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
         wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
         mkdir artifacts
-        ./trivy image docker.io/${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} > artifacts/trivy_results.txt
+        ./trivy image $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA > artifacts/trivy_results.txt
         echo "artifactPath=artifacts/trivy_results.txt" >> $GITHUB_ENV
         echo TRIVY_RESULTS=$(cat artifacts/trivy_results.txt | grep Total:) >> GITHUB_OUTPUT
     - if: always()
