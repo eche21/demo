@@ -32,7 +32,7 @@ jobs:
 #This step checks out the application source code
 #
     - name: Git Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@latest
 #  
     - name: shortsha
       run:
