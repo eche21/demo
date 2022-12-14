@@ -46,7 +46,8 @@ jobs:
       run: docker image ls
     - name: Remove unused images 
       run: docker image prune  
-
+    - name: list all docker images 
+      run: docker image ls
 #
 #SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
 # for any severity
