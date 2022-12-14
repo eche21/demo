@@ -44,8 +44,10 @@ jobs:
         docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
     - name: list all docker images 
       run: docker image ls
-    - name: Remove unused images 
-      run: docker image prune  
+#    - name: Remove unused images 
+#      run: docker image prune  
+    - name: Remove the images
+      uses: stevemar/image-deleter@v1.0.1
     - name: list all docker images 
       run: docker image ls
 #
