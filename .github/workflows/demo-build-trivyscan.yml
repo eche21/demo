@@ -29,15 +29,11 @@ jobs:
     
     steps:
 #    
-#This step checks out the application source code
-#
-    - name: Git Checkout
-      uses: actions/checkout@v2
+    - name: Git checkout
+      uses: actions/checkout@v3
 #  
     - name: shortsha
-      run:
-       echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
-        
+      run:        echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
@@ -46,6 +42,11 @@ jobs:
     - name: Build Docker Image
       run:
         docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
+    - name: list all docker images 
+      run: docker image ls
+    - name: Remove unused images 
+      run: docker image prune  
+
 #
 #SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
 # for any severity
