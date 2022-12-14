@@ -44,6 +44,9 @@ jobs:
         docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
     - name: list all docker images 
       run: docker image ls
+    - name: Remove unused images 
+      run: docker image prune  
+
 #
 #SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
 # for any severity
