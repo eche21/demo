@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  build-and-wiz-scan:
+  build:
     runs-on: ubuntu-latest
     env:
       #Environment variables for Docker image
@@ -50,6 +50,28 @@ jobs:
       run:
         docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
 
+  wiz-cli-image-scan:
+    needs: [build]
+    name: 'Wiz-cli Image Scan'
+    runs-on: ubuntu-latest
+    env:
+      POLICY: "Default vulnerabilities policy" # Set the desired Wiz-cli policy to use
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Set Image Tag
+      run: echo "IMAGE_TAG=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV
+    - name: Docker Login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD}}
+    - name: Pull Docker Image
+      run: docker pull $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA
     - name: Download Wiz-cli
       run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
 
@@ -60,4 +82,4 @@ jobs:
         WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
     - name: Run wiz-cli docker image scan
-      run: ./wizcli docker scan --image $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --policy "$POLICY"
+      run: ./wizcli docker scan --image $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --policy "$POLICY"    
