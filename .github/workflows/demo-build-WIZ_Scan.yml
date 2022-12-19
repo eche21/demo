@@ -9,11 +9,11 @@ name: demo_build_and_wiz_scan
 on:
   push:
     branches:
-      - echeissue2701      
+      - echewizcli      
 
 jobs:
 
-  build-trivy-scan:
+  build-wiz-scan:
     runs-on: ubuntu-latest
     env:
       #Environment variables for Docker image
@@ -25,7 +25,15 @@ jobs:
       CLUSTER_NAME: RegScale
       CLUSTER_RESOURCE_GROUP: Corporate
       NAMESPACE: demo-eche
-    
+     #
+ #     SCAN_PATH: "." # Set the relative path in the repo to build the image from
+      TAG: ${{ github.sha }} # Set the tag to use for the image
+      POLICY: "Default vulnerabilities policy" # Set the desired Wiz-cli policy to use
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
 #    
     - name: Git checkout
@@ -41,47 +49,15 @@ jobs:
     - name: Build Docker Image
       run:
         docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
-    - name: list all docker images 
-      run: docker image ls
-    - name: Remove unused images 
-      run: docker image prune  
 
-#
-#SCAN THE IMAGE using the open source tool trivy. Trivy download the image and scans it and look
-# for any severity
-#
-#    - name: Run Trivy vulnerability scanner
-#      uses: aquasecurity/trivy-action@master
-#      continue-on-error: true
-#      with:
-#        image-ref: 'docker.io/${{ env.DOCKER_REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
-#        format: 'table'
-#        exit-code: '1'
-#        ignore-unfixed: true
-#        vuln-type: 'os,library'
-#        severity: 'MEDIUM,HIGH,CRITICAL'
-    - name: trivy scan
-      id: trivy_scan 
-      run: |
-        export TRIVY_VERSION=$(wget -qO - "https://api.github.com/repos/aquasecurity/trivy/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
-        wget --no-verbose https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -O - | tar -zxvf -
-        mkdir artifacts
-        ./trivy image $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA > artifacts/trivy_results.txt
-        echo "artifactPath=artifacts/trivy_results.txt" >> $GITHUB_ENV
-        echo TRIVY_RESULTS=$(cat artifacts/trivy_results.txt | grep Total:) >> GITHUB_OUTPUT
-    - if: always()
-      name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Trivy Results
-        path: ${{ env.artifactPath }}
-    - name: Add PR Comment
+    - name: Download Wiz-cli
+      run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
+
+    - name: Authenticate to Wiz
+      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
       env:
-        TRIVY_RESULTS: ${{ steps.trivy_scan.outputs.TRIVY_RESULTS }}
-      uses: mshick/add-pr-comment@v2
-      with:
-        message: |
-         Trivy Scan Results
-         ------------------
-         ${{ env.TRIVY_RESULTS }}
-        repo-token: ${{ secrets.MYTOKEN }}
+        WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+        WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+    - name: Run wiz-cli docker image scan
+      run: ./wizcli docker scan --image $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --policy "$POLICY"
