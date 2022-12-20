@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  build-and-wiz-scan:
+  build-multi-platform:
     runs-on: ubuntu-latest
     env:
       #Environment variables for Docker image
@@ -41,7 +41,7 @@ jobs:
 #
     - name: Build Docker Image
       run:
-        docker build ./app/ --file ./app/Dockerfile --platform linux/amd64, linux/386 --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
+        docker buildx build ./app/ --file ./app/Dockerfile --platform linux/amd64, linux/386 --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
 
     - name: list existing builders
       run: docker images
