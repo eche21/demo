@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       #Environment variables for Docker image
-      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
-      IMAGE_NAME: demoappv3 # name of image
+#      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
+      IMAGE_NAME: eche21/demoappv3 # name of image
       IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
       #
       #variables for AKS cluster and namespace
@@ -33,7 +33,7 @@ jobs:
       uses: actions/checkout@v3
 #  
     - name: shortsha
-      run:        echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
+      run:        echo "IMAGE_TAG=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA
+          tags: $IMAGE_NAME:$IMAGE_TAG
     # - name: Build Docker Image
     #   run: |
     #     docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
