@@ -39,10 +39,12 @@ jobs:
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
 #This gives more flexibility and more control.
 #
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
     - name: Build Docker Image
       run: |
-        cd ./app
-        docker buildx build  --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache  --platform linux/amd64, linux/386 
+        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
 
     - name: list existing builders
       run: docker images
