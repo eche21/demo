@@ -40,8 +40,9 @@ jobs:
 #This gives more flexibility and more control.
 #
     - name: Build Docker Image
-      run:
-        docker buildx build  --platform linux/amd64, linux/386 ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
+      run: |
+       cd app
+        docker buildx build  ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache  --platform linux/amd64, linux/386 
 
     - name: list existing builders
       run: docker images
