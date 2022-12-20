@@ -28,6 +28,7 @@ jobs:
     - name: Build and push RegScale image
       uses: docker/build-push-action@v3
       with:
+        context: ./app
         push: true
         tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
   wiz-cli-image-scan:
