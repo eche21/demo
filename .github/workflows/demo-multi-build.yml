@@ -1,0 +1,47 @@
+###########################################################################################
+# THIS DEMO SUCCESSFULLY BUILDS AND DEPLOYS THE DOCKER CONTAINER TO AKS
+#THE APP IS TAKEN FROM docs.docker.com/get-started/02_our_app
+#THE ZIP FOLDER IS IN MY DOWNLOADS C:\Users\ericn\Downloads\getting-started-master.zip
+#########################################################################################
+#
+#This workflow is triggered on a push to github branch che
+name: demo_multi_build
+on:
+  push:
+    branches:
+      - echemultiplatform     
+
+jobs:
+
+  build-and-wiz-scan:
+    runs-on: ubuntu-latest
+    env:
+      #Environment variables for Docker image
+      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
+      IMAGE_NAME: demoappv3 # name of image
+      IMAGE_TAG: ${{ github.sha }} # $GITHUB_SHA the  commit ID
+      #
+      #variables for AKS cluster and namespace
+      CLUSTER_NAME: RegScale
+      CLUSTER_RESOURCE_GROUP: Corporate
+      NAMESPACE: demo-eche
+     #
+
+    steps:
+#    
+    - name: Git checkout
+      uses: actions/checkout@v3
+#  
+    - name: shortsha
+      run:        echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
+#This step builds the docker image using docker build. The image is tagged.
+# We can also use a step predefined in github market place.
+# But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
+#This gives more flexibility and more control.
+#
+    - name: Build Docker Image
+      run:
+        docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
+
+    - name: list existing builders
+      run: docker buildx ls
