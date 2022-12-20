@@ -33,7 +33,7 @@ jobs:
       uses: actions/checkout@v3
 #  
     - name: shortsha
-      run:        echo "IMAGE_TAG=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV 
+      run: echo "COMMIT_SHA=$(echo $GITHUB_SHA | cut -c 1-7)" >> $GITHUB_ENV
 #This step builds the docker image using docker build. The image is tagged.
 # We can also use a step predefined in github market place.
 # But we use the command line. The docker cli and the docker daemon are already installed inside  the runner. 
@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: $IMAGE_NAME:0.0.1
+          tags: ${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
     # - name: Build Docker Image
     #   run: |
     #     docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
