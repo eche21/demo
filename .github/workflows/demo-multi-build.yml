@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: $IMAGE_NAME:$IMAGE_TAG
+          tags: $IMAGE_NAME:0.0.1
     # - name: Build Docker Image
     #   run: |
     #     docker build ./app/ --file ./app/Dockerfile --tag $DOCKER_REPOSITORY/$IMAGE_NAME:$SHORT_SHA --build-arg=token=secrets.MYTOKEN --no-cache
