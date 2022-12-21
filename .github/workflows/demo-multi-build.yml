@@ -12,7 +12,7 @@ jobs:
     env:
       #Environment variables for Docker image
 #      DOCKER_REPOSITORY: eche21 # name of Docker Hub ID
-      IMAGE_NAME: eche21/demoappv3 # name of image
+      IMAGE_NAME: eche21/demo-multiplatform # name of image
      #
 
     steps:
@@ -32,9 +32,10 @@ jobs:
       with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD}}
-    # - name: Build and push image
-    #   uses: docker/build-push-action@v3
-    #   with:
-    #       context: ./app
-    #       push: true
-    #       tags: ${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
+    - name: Build and push image
+      uses: docker/build-push-action@v3
+      with:
+          context: ./app
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ env.COMMIT_SHA }}
